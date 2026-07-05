@@ -46,6 +46,88 @@
 
 
 
+### 8.给项目添加一个resource.qrc文件，然后把图片添加进来
+
+![image-20260704120249401](./note06-开发Qt版的MP4播放器.assets/image-20260704120249401.png)
+
+### 9.打开ui文件，给每一个按钮添加对应的图片
+
+![image-20260704120704796](./note06-开发Qt版的MP4播放器.assets/image-20260704120704796.png)
+
+### 10.给音量滑块设置一个默认值60
+
+![image-20260704120947127](./note06-开发Qt版的MP4播放器.assets/image-20260704120947127.png)
+
+
+
+### 11.打开.pro文件，给项目添加多媒体支持
+
+![image-20260704121911584](./note06-开发Qt版的MP4播放器.assets/image-20260704121911584.png)
+
+### 12.在videoplayer.h里面添加相应的头文件，需要注意，Qt6已经没有QMediaPlayList这个头文件了。需要用QList< Qurl>来代替
+
+![image-20260704123357857](./note06-开发Qt版的MP4播放器.assets/image-20260704123357857.png)
+
+### 13.然后我们可以添加一些简单的播放代码，首先，需要在播放器的构造函数里面初始化我们的m_player指向的对象，
+
+![image-20260704170112004](./note06-开发Qt版的MP4播放器.assets/image-20260704170112004.png)
+
+### 然后给打开按钮添加代码，获取用户选择的文件显示在当前文件旁边的标签上
+
+![image-20260704165605057](./note06-开发Qt版的MP4播放器.assets/image-20260704165605057.png)
+
+### 然后我们在播放按钮的槽函数里面添加播放代码，播放的步骤是先创建QMediaPlaer的对象标签返回他的指针，这个我们已经做了，然后我们需要创建一个QVideoWidget对象，标签返回他的指针，这里使用我们的graphicsView控件来作为QVideoWidget对象的父窗口，然后注意必须给QVideoWidget对象设置为可见，并且设置他的大小，否则你就看不到画面，然后还需要给播放器对象设置视频源，再调用他的播放方法
+
+![image-20260704170809283](./note06-开发Qt版的MP4播放器.assets/image-20260704170809283.png)
+
+### 此时播放功能实现了，效果如下
+
+![image-20260704170929366](./note06-开发Qt版的MP4播放器.assets/image-20260704170929366.png)
+
+
+
+### 14.然后我们给播放器添加暂停功能，也是给暂停按钮添加点击事件的槽函数，我们的暂停功能是可以在暂停的位置继续播放的。我们需要感觉当前播放器的播放状态来判断，如果当前正在播放，我们就把视频暂停，同时设置暂停按钮的图标为播放图标，文本为Resume，也就是继续，如果当前播放器处于暂停状态，我们就从暂停的位置继续播放，同时把暂停按钮的图标设置为暂停图标，把暂停按钮的文本设置为暂停。
+
+![image-20260704180154503](./note06-开发Qt版的MP4播放器.assets/image-20260704180154503.png)
+
+### 15.然后我们给停止按钮添加点击事件的槽函数，也就是实现点击停止播放功能，需要注意的是我们要考虑有时候，用户可能点击了暂停按钮后，又点击了停止按钮，此时我们需要先把停止按钮的状态恢复为最初的状态，然后再停止播放
+
+![image-20260704180520933](./note06-开发Qt版的MP4播放器.assets/image-20260704180520933.png)
+
+### 16.其实我们的播放代码也需要优化，首先，为了避免多次创建对象，我们可以把音频输出对象和视频窗口部件对象定义为成员变量，
+
+![image-20260704181135845](./note06-开发Qt版的MP4播放器.assets/image-20260704181135845.png)
+
+### 然后在构造函数里面创建对象，
+
+![image-20260704181439642](./note06-开发Qt版的MP4播放器.assets/image-20260704181439642.png)
+
+### 在播放代码里面调用他的方法，
+
+![image-20260704182645014](./note06-开发Qt版的MP4播放器.assets/image-20260704182645014.png)
+
+### 当用户暂停了应该视频，然后他又点击开始也就是他想从头开始观看，此时我们也需要把暂停按钮恢复，我们把恢复暂停按钮的代码封装一个函数，方便调用，
+
+![image-20260704182802985](./note06-开发Qt版的MP4播放器.assets/image-20260704182802985.png)
+
+### 然后我们来优化停止按钮的代码
+
+![image-20260704182823082](./note06-开发Qt版的MP4播放器.assets/image-20260704182823082.png)
+
+## 17.继续优化代码，我们添加设置音量的代码，用音量滑块当前的值转化为float后再除于滑块的最大值获取到一个小数然后设置到音频输出对象里面
+
+![image-20260704191915793](./note06-开发Qt版的MP4播放器.assets/image-20260704191915793.png)
+
+### 18.然后我们给音量滑块添加一个处理valueChanged信号的槽函数
+
+![image-20260704201500187](./note06-开发Qt版的MP4播放器.assets/image-20260704201500187.png)
+
+### 经过测试发现音量滑块读取可以调整音量了。
+
+### 19.然后我们需要实现显示播放进度的功能
+
+
+
 
 
 # 扩展，
@@ -61,3 +143,92 @@
 ## 参考源码2 ： https://github.com/vlc-qt
 
 ## 参考源码3：https://github.com/vlc-qt/examples
+
+## 参考源码4：https://github.com/yundiantech/videoplayer
+
+# 扩展2：QMediaPlayer实现显示播放进度的功能
+
+使用 `QMediaPlayer` 显示播放进度，核心在于通过信号槽机制获取**总时长**和**当前进度**，并将其与进度条（`QSlider`）和标签（`QLabel`）绑定。以下是具体的实现步骤和核心代码： [[1](https://blog.csdn.net/weixin_55735677/article/details/131247801), [2](https://developer.aliyun.com/article/934273), [3](https://www.kafuuchino.fun/archives/24)]
+
+1. 核心信号与属性
+
+- **`durationChanged(qint64 duration)`**：当媒体总时长发生改变时触发，用于初始化进度条的最大值。
+- **`positionChanged(qint64 position)`**：当当前播放位置改变时触发，用于实时更新进度条的值和时间显示。 [[1](https://www.kafuuchino.fun/archives/24)]
+- 实现代码示例 (以 C++ 为例)
+
+步骤一：连接信号槽
+
+在你的主窗口或播放器类中，将 `QMediaPlayer` 的信号绑定到对应的更新函数： [[1](https://www.kafuuchino.fun/archives/24)]
+
+cpp
+
+```
+// 假设 player 是你的 QMediaPlayer 对象， progressSlider 是进度条
+connect(player, &QMediaPlayer::durationChanged, this, &MainWindow::updateDuration);
+connect(player, &QMediaPlayer::positionChanged, this, &MainWindow::updatePosition);
+```
+
+ 
+
+步骤二：编写槽函数更新 UI
+
+cpp
+
+```
+// 更新总时长，设置进度条的最大值
+void MainWindow::updateDuration(qint64 duration) {
+    progressSlider->setMaximum(duration);
+}
+
+// 更新当前播放进度
+void MainWindow::updatePosition(qint64 position) {
+    // 只有在用户没有拖动进度条时才更新，防止进度条卡顿
+    if (!progressSlider->isSliderDown()) {
+        progressSlider->setValue(position);
+    }
+}
+```
+
+ 
+
+步骤三：实现进度条拖拽快进
+
+当用户手动拖动进度条时，需要将播放器跳转到对应的时间点。首先需连接 `QSlider` 的信号： [[1](https://blog.csdn.net/weixin_55735677/article/details/131247801)]
+
+cpp
+
+```
+connect(progressSlider, &QSlider::sliderMoved, this, &MainWindow::seekPosition);
+```
+
+ 
+
+cpp
+
+```
+// 实现快进/快退
+void MainWindow::seekPosition(int position) {
+    player->setPosition(position);
+}
+```
+
+ 
+
+3. 可选扩展：显示文本时间格式
+
+为了提升用户体验，通常会将获取到的毫秒数（`qint64`）格式化为 MM:SS 显示在标签上：
+
+cpp
+
+```
+// 格式化时间函数
+QString formatTime(qint64 timeMs) {
+    qint64 seconds = timeMs / 1000;
+    qint64 minutes = seconds / 60;
+    seconds %= 60;
+    return QString("%1:%2").arg(minutes, 2, 10, QChar('0')).arg(seconds, 2, 10, QChar('0'));
+}
+```
+
+ 
+
