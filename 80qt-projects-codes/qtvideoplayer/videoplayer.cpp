@@ -15,6 +15,13 @@ VideoPlayer::VideoPlayer(QWidget *parent)
     m_videoWidget = new QVideoWidget(ui->graphicsView);
     m_videoWidget->setGeometry(0,0,ui->graphicsView->width(),ui->graphicsView->height());
 
+    //给播放器绑定两个信号处理方便显示播放进度
+    connect(m_player, &QMediaPlayer::durationChanged, this, &VideoPlayer::updateDuration);
+    connect(m_player, &QMediaPlayer::positionChanged, this, &VideoPlayer::updatePosition);
+   //拖动滑块改变播放器的播放位置
+    // 核心逻辑公式：播放器进度 = 滑块位置
+    connect(ui->prog_slider, &QSlider::sliderMoved, m_player, &QMediaPlayer::setPosition);
+
 }
 
 VideoPlayer::~VideoPlayer()
@@ -103,5 +110,24 @@ void VideoPlayer::on_vol_slider_valueChanged(int value)
     //注意这个值是float类型的，所以，你必须把其中一个书转化为float类型，否则你得到的是0
     float vol = float(value)/ui->vol_slider->maximum();
     m_player->audioOutput()->setVolume(vol);
+}
+
+void VideoPlayer::updateDuration(qint64 duration)
+{   //获取视频的总长度并且把它设置为进度滑块的最大值
+    // qDebug()<<"duration:"<<duration;
+    ui->prog_slider->setMaximum(duration);
+}
+
+void VideoPlayer::updatePosition(qint64 position)
+{
+    // qDebug()<<"position:"<<position;
+    // 只有在用户没有拖动进度条时才更新，防止进度条卡顿
+    if(!ui->prog_slider->isSliderDown()){
+        ui->prog_slider->setValue(position);
+    }
+    int mx = ui->prog_slider->maximum();
+    float prog =position*100/mx;
+    QString str=QString::number(prog) + "%";
+    ui->lbl_prog->setText(str);
 }
 

@@ -47,6 +47,8 @@ private:
 
 
 
-
+private slots:
+    void updateDuration(qint64 duration);
+    void updatePosition(qint64 position);
 };
 #endif // VIDEOPLAYER_H
